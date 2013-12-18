@@ -1,0 +1,43 @@
+1.HOW TO START ?
+	1) make directory for this project. for example:
+	   $ mkdir ~/geant
+	  
+	2) copy project's files into created directory. for example:
+	   $ cp -r ~/Downloads/track_mem ~/geant/
+	   
+	3) make directory for build files
+	   $ mkdir ~/geant/track_mem_build
+	   
+	4) run cmake (required root, geant4 packages)
+	   $ cd ~/geant/track_mem_build
+	   $ cmake -DCMAKE_BUILD_TYPE=Debug -DGeant4_DIR=path_to_Geant4_installation/lib[64]/Geant4-9.6.0/ ../track_mem
+	   
+	5) make project and launch
+	   $ make
+	   $ ./track_mem trk.mac
+	
+	6) to print histo of experiment 
+	   $ root -l print_ni.c
+	   $ root -l print_electron.c
+	   
+	7) enjoy!
+	
+2. SOME PARAMETERS
+	1) During launching:
+		a) in TrackerSD.hh:
+			GLOBAL, apriori = 200000;
+			lengthThreshold, apriori = 5*nm;
+		b) in PhysicsList.cc
+			cutValue, apriori = 1*nm;
+			energyRange, apriori = (200*eV, 10*GeV);
+		c) in trk.mac:
+			number of events, apriori = 1;
+			
+	2) During printing:
+		a) in print_electron.c
+			 N0, apriori = 5;
+			 radius, apriori = 25;
+		
+3. SOME BUGS
+	1) Wrong amount of ended electrons, not equal to started (written).
+	2) Doesn't work on more than 1 beams.
