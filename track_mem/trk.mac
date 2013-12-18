@@ -1,4 +1,4 @@
 /run/verbose 1
 /event/verbose 0
 /tracking/verbose 0
-/run/beamOn 2
+/run/beamOn 1

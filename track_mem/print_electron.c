@@ -33,11 +33,10 @@ void print_electron(){
 	for (j = 0; j < ntuple->GetEntries(); j++){
 		ntuple->GetEntry(j);
         content = ntuple->GetArgs();
-        cout << content[0] << "    " <<  content[1] << endl;
-		h3b->Fill(content[0], content[1], 1/num);
+		h3b->Fill(content[0], content[1], 1.0/num);
 		if (content[1] < radius)
 			sum ++;
-		h2a->Fill(content[1], 1/num/(maxz-minz));
+		h2a->Fill(content[1], 1.0/num/(maxz-minz));
 		if ((content[0] >= 0) && (content[1] <= maxr)){
 			i = int (content[0] / dz);
 			t = int (content[1] / dr);
@@ -72,7 +71,7 @@ void print_electron(){
 	for (j = 0; j < ntuple->GetEntries(); j++){
 		ntuple->GetEntry(j);
         content = ntuple->GetArgs();
-		h3c->Fill(content[0], content[1], 1/num);
+		h3c->Fill(content[0], content[1], 1.0/num);
 	}
 		
 	TCanvas *c2 = new TCanvas("Ionisation","Ionisation");

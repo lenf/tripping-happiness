@@ -182,7 +182,7 @@ void PhysicsList::SetCuts()
 {
   //G4cout << GetDefaultCutValue()/nm << G4endl;
   //G4VUserPhysicsList::SetCuts();
-  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(200*eV, 10*GeV);
+  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(1000*eV, 10*GeV);
   
   // set cut values for gamma at first and for e- second and next for e+,
   // because some processes for e+/e- need cut values for gamma
