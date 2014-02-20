@@ -147,7 +147,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 //--------- User Limits -------------------------------
 
   // Sets a max Step length in the tracker region, with G4StepLimiter
-  G4double maxStep = 1*nm; // try to set max step to 10^-9 of world's lenght (about 1 nm)
+  G4double maxStep = 0.1*nm; // try to set max step to 10^-9 of world's lenght (about 1 nm)
   stepLimit = new G4UserLimits(maxStep); // doesn't work now 
   //stepLimit->SetUserMinEkine(1000*eV);
   logicTarget->SetUserLimits(stepLimit);

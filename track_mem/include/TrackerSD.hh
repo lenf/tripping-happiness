@@ -8,8 +8,8 @@ class G4HCofThisEvent;
 class TFile;
 class TH1F;
 class TNtuple;
-const int GLOBAL = 200000;
-const float lengthThreshold = 5*nm;
+const int GLOBAL = 5000000;
+const int lengthThreshold = 1*nm;
 
 class TrackerSD : public G4VSensitiveDetector
 {
@@ -24,6 +24,9 @@ class TrackerSD : public G4VSensitiveDetector
 
   private:
 	  
+	  int first;
+	  int second;
+	  bool wasfirst;
       float array[GLOBAL][2];
       int num;
       int number;
@@ -42,14 +45,12 @@ class TrackerSD : public G4VSensitiveDetector
 	  G4double entireEdep;
 	  G4double endZ;
 	  G4double endR; 
-	  G4double lengthThreshold; 
 	  bool written;
 	  G4int launchAmount;
 	  bool wasElectron;
 	  G4double density;
 	  G4double molar;
 	  G4double width;
-
 };
 
 #endif
