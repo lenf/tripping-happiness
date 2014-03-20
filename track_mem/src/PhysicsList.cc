@@ -87,7 +87,7 @@ void PhysicsList::ConstructEM()
 		//to print using processes of concret particle use statetment above
 		
 	
-		//cout << particleName << endl;
+		cout << particleName << endl;
 		
 		if (particleName == "GenericIon") {        
       			//Main idea to make this code perfect
@@ -95,8 +95,8 @@ void PhysicsList::ConstructEM()
       			G4ionIonisation* theionIonisation = new G4ionIonisation();
       			theionIonisation->SetEmModel(new G4IonParametrisedLossModel());
       			
-      			G4PAIModel* pai = new G4PAIModel(particle, "G4PAI");//thin film model for em
-      			theionIonisation->AddEmModel(0, pai, pai, film);
+      			/*G4PAIModel* pai = new G4PAIModel(particle, "G4PAI");//thin film model for em
+      			theionIonisation->SetEmModel(pai);//(0, pai, pai, film);*/
       			
       			theionIonisation->SetStepFunction(0.1, 1*um); // TO DO :: think about step
 					pmanager->AddProcess(theionIonisation,         -1, 1, 1); //ионизация

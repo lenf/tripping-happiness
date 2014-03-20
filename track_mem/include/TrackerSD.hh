@@ -2,7 +2,7 @@
 #define TrackerSD_h 1 
 
 #include "G4VSensitiveDetector.hh"
-
+#include "G4SystemOfUnits.hh"
 class G4Step;
 class G4HCofThisEvent;
 class TFile;
@@ -28,7 +28,6 @@ class TrackerSD : public G4VSensitiveDetector
 	  int second;
 	  bool wasfirst;
       float array[GLOBAL][2];
-      int num;
       int number;
       TFile *f;
       TNtuple *ntuple1;

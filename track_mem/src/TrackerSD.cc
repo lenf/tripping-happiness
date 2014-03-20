@@ -10,6 +10,7 @@ using namespace std;
 #include "TFile.h"
 #include "TSystem.h"
 #include "TNtuple.h"
+#include "G4SystemOfUnits.hh"
 
 TrackerSD::TrackerSD(G4String name, G4double Adensity, G4double Amolar, G4double Awidth)
 :G4VSensitiveDetector(name)
@@ -37,9 +38,7 @@ TrackerSD::TrackerSD(G4String name, G4double Adensity, G4double Amolar, G4double
   density = Adensity;
   molar = Amolar;
   width = Awidth;
-  //electronAmount=1;
-  //goodElectron=1;
-  //stepElectron=0;
+
   
 }
 
@@ -51,7 +50,7 @@ TrackerSD::~TrackerSD()
 	ntuple4 -> Fill (launchAmount, density, molar, width/um);
 	ntuple4 -> Write();
     f -> Close(); 
-    cout << first << " " << second << "   "<< (second * 1.0)/(first + second) << endl;
+    cout << "first_e = " << first << " second_e = " << second << "   "<< (second * 1.0)/(first + second) << endl;
 	delete f;	
 }
 
@@ -86,10 +85,6 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 		}
 		else {
 			launchAmount ++;
-			/*for (int i=0; i< GLOBAL; i++){
-				array[i][0] = 0;
-				array[i][1] = 0;
-			}*/
 			trackId = currentTrackId;
 			number = 1; 
 			array[0][0] = 0;
@@ -100,18 +95,10 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 		}
   }
   else {
-	  
-	    
-	    //cout << trackId << "  " << currentTrackId << endl;
-		if (currentTrackId != trackId){
-			//cout << " +++++++++++++++++++++++++++++++++++ " << endl;
-			/*electronAmount++;
-			if((electronAmount%100000)==0){
-				cout << 1.*electronAmount/goodElectron << endl;
-			}*/
-			//cout << trackId << endl;
-			//cout << number << endl;
-			// writing information about previous electron ( ElectronEnd)
+	  	if ((aStep->GetTrack()) -> GetDefinition() ->GetParticleName()!= "e-")
+			cout << "Detected particle: " << aStep->GetTrack() -> GetDefinition()->GetParticleName()  << endl;
+	  	
+	  	if (currentTrackId != trackId){
 			if ((wasElectron) && (written)){
 				ntuple3 -> Fill (endZ / um, endR);
 				wasElectron = false;
@@ -119,13 +106,10 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 					first ++;
 				else
 					second++;
-				//cout << diedElectron/eV << endl;
-				
+
 			}
-			/*else
-				wasElectron = true;	*/  
+			
 			if (aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-"){
-				//ntuple -> Fill (z / 1000.0, abs (r/nm - array[closest_num][1]) , edep / eV);
 				if ((aStep->GetTrack())->GetParentID() == 1)
 					wasfirst = true;
 				else
@@ -140,29 +124,20 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 			} 
 		}
 		else{
-			//diedElectron = (aStep->GetTrack())->GetKineticEnergy();
 			if ((aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-") && (!written)){
 				G4double z = position.z() - start_pos.z()- entireZ;
 				G4double y = position.y() - start_pos.y()- entireY;
 				G4double x = position.x() - start_pos.x()- entireX;
-				//cout << " ----------------------------" << sqrt (z*z+y*y+x*x)/nm << "  " << lengthThreshold << "  "  << GLOBAL <<  endl;
 				if (sqrt (z*z+y*y+x*x) > lengthThreshold){
 					ntuple2 -> Fill (entireZ / um, entireR);
 					written = true;
-					//goodElectron++;
-					//cout << " accepted " << endl;
-					
 				}
 			}
 			if ((aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-") && (written)){
 				endZ = position.z() - start_pos.z();
 				endR = getCorrectRadius(position);
-				//diedElectron = (aStep->GetTrack())->GetKineticEnergy();
 			}
 		}
-		//stepElectron++;
-	    //diedElectron = (aStep->GetTrack())->GetKineticEnergy();
-	    //cout << diedElectron/eV << endl;
   }
   return true;
 }

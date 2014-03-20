@@ -30,10 +30,10 @@ void print_ni(){
         content = ntuple->GetArgs();
 		index = int(content[0] /maxz * bin);
 		if (index >= bin){
-		cout << "klklk" << endl;
+
 		index = bin-1;
 		}
-		//if (maxz * index / bin 
+
 		data[index] ++; 
 	}
 	for (int i = 0; i < ntuple->GetEntries(); i++){

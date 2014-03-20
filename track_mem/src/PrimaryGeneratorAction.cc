@@ -29,9 +29,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double position = -0.5*(myDetector->GetWorldFullLength());
   particleGun->SetParticlePosition(G4ThreeVector(0.*cm,0.*cm,position));
   G4ParticleDefinition* ion
-       = G4ParticleTable::GetParticleTable()->GetIon(28, 58, 0);
+       = G4IonTable::GetIonTable()->FindIon(28, 58, 0);
   particleGun->SetParticleDefinition(ion);
-  particleGun->SetParticleEnergy(6.7*58 * MeV); //6.7 Mev * 58 nuclo
+  particleGun->SetParticleEnergy(6.7 * 58 * MeV); //6.7 Mev * 58 nuclo
   particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
   particleGun->SetParticleCharge(2.*eplus);
   particleGun->GeneratePrimaryVertex(anEvent);

@@ -32,7 +32,8 @@ endif()
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 
-include_directories(${PROJECT_SOURCE_DIR}/include 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+					${PROJECT_SOURCE_DIR}/include 
                     ${Geant4_INCLUDE_DIR}
                     ${ROOT_INCLUDE_DIR})
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
