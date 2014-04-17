@@ -30,10 +30,14 @@ class TrackerSD : public G4VSensitiveDetector
       float array[GLOBAL][2];
       int number;
       TFile *f;
+      TFile *f1;
+      TFile *f2;
       TNtuple *ntuple1;
       TNtuple *ntuple2;
       TNtuple *ntuple3;
       TNtuple *ntuple4;
+      TNtuple *ntuple5;
+      TNtuple *ntuple6;
       bool nickel;
 	  G4int trackId;
 	  G4ThreeVector start_pos; 
@@ -50,6 +54,8 @@ class TrackerSD : public G4VSensitiveDetector
 	  G4double density;
 	  G4double molar;
 	  G4double width;
+	  G4double kinenergy;
+	  G4double kenergy;
 };
 
 #endif

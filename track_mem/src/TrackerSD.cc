@@ -20,6 +20,12 @@ TrackerSD::TrackerSD(G4String name, G4double Adensity, G4double Amolar, G4double
   ntuple2 = new TNtuple("Electron","Demo ntuple","z:r:amount");
   ntuple3 = new TNtuple("ElectronEnd","Demo ntuple","z:r:amount");
   ntuple4 = new TNtuple("Info","Demo ntuple","amount:den:molar:width");
+  f1 = new TFile("MolerBhabha.root","RECREATE");
+  f1->cd();
+  ntuple5 = new TNtuple("Second_electron_energy","Demo ntuple","energy");  
+  f2 = new TFile("Allelectronliver.root","RECREATE");
+  f2->cd();
+  ntuple6 = new TNtuple("Allelectron","Demo ntuple","energy");  
   entireZ = 0;
   entireX = 0;
   entireY = 0;
@@ -49,7 +55,11 @@ TrackerSD::~TrackerSD()
 	ntuple3 -> Write();
 	ntuple4 -> Fill (launchAmount, density, molar, width/um);
 	ntuple4 -> Write();
-    f -> Close(); 
+    f -> Close();
+    ntuple5 -> Write();
+    f1 ->Close(); 
+    ntuple6 -> Write();
+    f2 ->Close(); 
     cout << "first_e = " << first << " second_e = " << second << "   "<< (second * 1.0)/(first + second) << endl;
 	delete f;	
 }
@@ -61,7 +71,6 @@ void TrackerSD::Initialize(G4HCofThisEvent*)
 G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 {
   G4double edep = aStep->GetTotalEnergyDeposit();
-  
   if(edep==0.) return false;
   
   G4int currentTrackId = (aStep->GetTrack())->GetTrackID();
@@ -97,19 +106,24 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
   else {
 	  	if ((aStep->GetTrack()) -> GetDefinition() ->GetParticleName()!= "e-")
 			cout << "Detected particle: " << aStep->GetTrack() -> GetDefinition()->GetParticleName()  << endl;
-	  	
+			
+					
 	  	if (currentTrackId != trackId){
 			if ((wasElectron) && (written)){
 				ntuple3 -> Fill (endZ / um, endR);
 				wasElectron = false;
 				if (wasfirst)
 					first ++;
-				else
+				else{
 					second++;
-
+					ntuple5 -> Fill(kenergy);
+					
+				}
 			}
 			
 			if (aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-"){
+				kinenergy = aStep->GetTrack()->GetKineticEnergy() / eV;
+				ntuple6 -> Fill(kinenergy);
 				if ((aStep->GetTrack())->GetParentID() == 1)
 					wasfirst = true;
 				else
@@ -136,6 +150,7 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 			if ((aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-") && (written)){
 				endZ = position.z() - start_pos.z();
 				endR = getCorrectRadius(position);
+				kenergy = kinenergy;
 			}
 		}
   }

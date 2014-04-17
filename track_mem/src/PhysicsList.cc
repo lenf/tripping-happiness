@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-#include "globals.hh"
+#include "globals.hh" 
 #include "PhysicsList.hh"
 
 #include "G4ProcessManager.hh"
@@ -30,16 +30,12 @@ using namespace std;
 #include "G4RegionStore.hh"
 
 #include "G4MollerBhabhaModel.hh"
-
+#include "G4UniversalFluctuation.hh"
+#include "G4PenelopeIonisationModel.hh"
+#include "G4LivermoreIonisationModel.hh"
 
 void PhysicsList::ConstructParticle()
 {
-	// create A LOT OF particles
-  	/*G4PhysConstVector::iterator itr;
-   	for (itr = physicsVector->begin(); itr != physicsVector->end(); ++itr) {
-     		(*itr)->ConstructParticle();
-   	}*/
-
 	// Electron & Positron
 	G4Electron::ElectronDefinition();
 	G4Positron::PositronDefinition();
@@ -53,90 +49,89 @@ void PhysicsList::ConstructParticle()
 void PhysicsList::ConstructProcess()
 {
   AddTransportation();
-  /*G4PhysConstVector::iterator itr;
-  for (itr = physicsVector->begin(); itr != physicsVector->end(); ++itr) {
-  	(*itr)->ConstructProcess();
-  }*/
-
   ConstructEM();
-  //ConstructOptical();
-  ConstructGeneral();
-  //AddStepMax();
 }
 
 void PhysicsList::ConstructEM()
 {  	
-	//G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
-	//think about that helper. what for it should be used or not
+	G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 	
-	const G4RegionStore* theRegionStore = G4RegionStore::GetInstance();
-	G4Region* film = theRegionStore->GetRegion("thinFilm");
+	/*const G4RegionStore* theRegionStore = G4RegionStore::GetInstance();
+	G4Region* film = theRegionStore->GetRegion("thinFilm");*/
 	  
 	theParticleIterator->reset();
   	while( (*theParticleIterator)() )
 	{
     	G4ParticleDefinition* particle = theParticleIterator->value();
-		G4ProcessManager* pmanager = particle->GetProcessManager();
+    	G4ProcessManager* pmanager = particle->GetProcessManager();
     	G4String particleName = particle->GetParticleName();
-    	
-    	/*
-    	G4ProcessVector* proclist = pmanager->GetProcessList();
-		for (int itr = 0; itr < proclist->length(); ++itr) {
-			cout << (*proclist)[itr]->GetProcessName() << endl;
-		}*/
-		//to print using processes of concret particle use statetment above
+   
+   		cout << particleName << endl;
 		
-	
-		cout << particleName << endl;
-		
-		if (particleName == "GenericIon") {        
-      			//Main idea to make this code perfect
-      			
-      			G4ionIonisation* theionIonisation = new G4ionIonisation();
-      			theionIonisation->SetEmModel(new G4IonParametrisedLossModel());
-      			
-      			/*G4PAIModel* pai = new G4PAIModel(particle, "G4PAI");//thin film model for em
-      			theionIonisation->SetEmModel(pai);//(0, pai, pai, film);*/
-      			
-      			theionIonisation->SetStepFunction(0.1, 1*um); // TO DO :: think about step
-					pmanager->AddProcess(theionIonisation,         -1, 1, 1); //ионизация
-					//ph->RegisterProcess(theionIonisation, particle);
+		if (particleName == "GenericIon") { 
+			       
+      		G4ionIonisation* theionIonisation = new G4ionIonisation();
+      		theionIonisation->SetEmModel(new G4IonParametrisedLossModel());
+      		
+      		/*G4PAIModel* pai = new G4PAIModel(particle, "G4PAI");//thin film model for em
+      		theionIonisation->SetEmModel(pai);//(0, pai, pai, film);*/
+      		
+      		theionIonisation->SetStepFunction(0.1, 1*um); // TO DO :: think about step
+			ph->RegisterProcess(theionIonisation, particle);
       
-    		} else if ((particleName == "e-") || (particleName == "e+")) {
+    	}else if (particleName == "e-") {
 				
 			G4eMultipleScattering * theMultipleScattering = new G4eMultipleScattering();
-			pmanager->AddProcess(theMultipleScattering, -1, 1, 1); //многократное рассеяние
+			ph->RegisterProcess(theMultipleScattering, particle);
 			
-			G4eIonisation * theIonisation = new G4eIonisation();
-			theIonisation->SetEmModel(new G4MollerBhabhaModel());
-			pmanager->AddProcess(theIonisation,  -1, 2, 2); //ионизация
+			G4eIonisation* theIonisation = new G4eIonisation();
+		    
+		    /*theIonisation->SetStepFunction(0.2, 0.1*nm);
+		    G4VEmModel* theIoniPenelope = new G4PenelopeIonisationModel();
+		    theIoniPenelope->SetHighEnergyLimit(1*MeV);
+            theIonisation->AddEmModel(0, theIoniPenelope, new G4UniversalFluctuation());
+			*/
 			
+			//theIonisation->SetEmModel(new G4MollerBhabhaModel());
+			
+			G4LivermoreIonisationModel* eIoniModel = new G4LivermoreIonisationModel();
+			eIoniModel->SetHighEnergyLimit(1*GeV); 
+			theIonisation->AddEmModel(0, eIoniModel, new G4UniversalFluctuation() );
+			
+			ph->RegisterProcess(theIonisation, particle);
 			
 			G4eBremsstrahlung * theBremsstrahlung = new G4eBremsstrahlung();
-			pmanager->AddProcess(theBremsstrahlung,  -1, 3, 3); //тормозное излучение
+			ph->RegisterProcess(theBremsstrahlung, particle);
+		
+		}else if (particleName == "e+") {
+				
+			G4eMultipleScattering * theMultipleScattering = new G4eMultipleScattering();
+			ph->RegisterProcess(theMultipleScattering, particle);
 			
-// * The general interface to a physics process allows 3 stage of interactions: *
-// * AtRest, AlongTheStep, PostStep.						*
-// * Each of 3 integer numbers shows the order of the process. 			*
-// * Negative number means that the process is inactive at the give stage	*
-
-      				
-      				
-      				
-      				
-      				
-      	
-      				
-      				
-      				
-    		} else if (particleName == "gamma") {
+			G4eIonisation* theIonisation = new G4eIonisation();
+		    /*theIonisation->SetStepFunction(0.2, 0.1*nm);
+		    G4VEmModel* theIoniPenelope = new G4PenelopeIonisationModel();
+		    theIoniPenelope->SetHighEnergyLimit(1*MeV);
+            theIonisation->AddEmModel(0, theIoniPenelope, new G4UniversalFluctuation());
+			*/
+			
+			theIonisation->SetEmModel(new G4MollerBhabhaModel());
+			
+			//theIonisation->SetEmModel(new G4LivermoreIonisationModel());
+			
+			ph->RegisterProcess(theIonisation, particle);
+			
+			G4eBremsstrahlung * theBremsstrahlung = new G4eBremsstrahlung();
+			ph->RegisterProcess(theBremsstrahlung, particle);
+	
+    	}else if (particleName == "gamma") {
 			G4PhotoElectricEffect * thePhotoElectricEffect = new G4PhotoElectricEffect();      
   			G4ComptonScattering * theComptonScattering = new G4ComptonScattering();
   			G4GammaConversion* theGammaConversion = new G4GammaConversion();
-				pmanager->AddDiscreteProcess(thePhotoElectricEffect); //Фотоэффект
-				pmanager->AddDiscreteProcess(theComptonScattering); //Эффект Комптона
-				pmanager->AddDiscreteProcess(theGammaConversion); //
-    		}
+			ph->RegisterProcess(thePhotoElectricEffect, particle);
+			ph->RegisterProcess(theComptonScattering, particle);
+			ph->RegisterProcess(theGammaConversion, particle);
+    	}
 	}
 }
 
@@ -163,14 +158,6 @@ PhysicsList::PhysicsList() : G4VModularPhysicsList()
 {
   SetVerboseLevel(1);
   defaultCutValue = 1*nm;
-  // Default physics
-  //RegisterPhysics(new G4DecayPhysics());
-
-  // Radioactive decay
-  //RegisterPhysics(new G4RadioactiveDecayPhysics());
-
-  // EM physics
-  //RegisterPhysics(new G4EmStandardPhysics());
 }
 
 PhysicsList::~PhysicsList()
@@ -180,20 +167,15 @@ PhysicsList::~PhysicsList()
 
 void PhysicsList::SetCuts()
 {
-  //G4cout << GetDefaultCutValue()/nm << G4endl;
-  //G4VUserPhysicsList::SetCuts();
-  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(10*eV, 10*GeV);
-  
   // set cut values for gamma at first and for e- second and next for e+,
   // because some processes for e+/e- need cut values for gamma
-  SetCutValue(1*nm, "gamma");
-  SetCutValue(1*nm, "e-");
-  SetCutValue(1*nm, "e+");
+  SetCutValue(1*nm, "gamma");//cutForGamma
+  SetCutValue(1*nm, "e-");//cutForElectron
+  SetCutValue(1*nm, "e+");//cutForElectron
+  SetCutValue(1*nm, "GenericIon");//cutForGenericIon
   G4VUserPhysicsList::SetCuts();
+  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(30*eV, 10*GeV);
   //DumpCutValuesTable();
-  /*SetCutValue(1*m, "gamma");//cutForGamma
-  SetCutValue(1*m, "e-");//cutForElectron
-  SetCutValue(1*m, "e+");//cutForElectron
-  SetCutValue(1*m, "GenericIon");//cutForGenericIon
-*/}  
+
+}  
 

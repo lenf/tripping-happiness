@@ -50,7 +50,7 @@ target_link_libraries(track_mem ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} )
 # build track_mem. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 
-set(track_mem_SCRIPTS vis.mac print_ni.c print_electron.c print_ni_energy.c trk.mac)
+set(track_mem_SCRIPTS vis.mac print_ni.c print_electron.c print_ni_energy.c trk.mac all.c print_physics.c)
 
 foreach(_script ${track_mem_SCRIPTS})
   configure_file(

@@ -64,6 +64,7 @@ void print_electron(){
     cout << "Amount of poly = " << (radius*radius*10e-18*(maxz-minz)*10e-6*3.14)*density/molar*6.02*10e23 << " Amount of e- = " << sum << "  //  " << (maxz-binz*dz)/dz << endl;
 	
 	TH2F *h3c = new TH2F("Electron end","Ionisation end", binz, minz, maxz, binr, minr, maxr);
+	//TH2F *h3d = new TH2F("Substraction","Substraction", binz, minz, maxz, binr, minr, maxr);
 	ntuple = (TNtuple*) f->Get("ElectronEnd");
 	
 	for (j = 0; j < ntuple->GetEntries(); j++){
@@ -74,12 +75,16 @@ void print_electron(){
 	TCanvas *c4 = new TCanvas("EndIonisation","Ionisation's end");
 	TCanvas *c3 = new TCanvas("e- section", "Average section");	
 	TCanvas *c2 = new TCanvas("Ionisation","Ionisation");
+	TCanvas *c1 = new TCanvas("Difference","of Ionisation");
 	
-	
+	TH2F *hnew = (TH2F*)h3c->Clone("hnew");
 	c4->cd();
 	h3c->Draw("lego2");
 	c3->cd();
 	h2a->Draw();
 	c2->cd();
     h3b->Draw("lego2");
+    c1->cd();
+    hnew->Add(h3b, -1);
+    hnew->Draw("lego2");
 }
