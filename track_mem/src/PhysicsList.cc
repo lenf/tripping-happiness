@@ -34,6 +34,36 @@ using namespace std;
 #include "G4PenelopeIonisationModel.hh"
 #include "G4LivermoreIonisationModel.hh"
 
+// Geant4-DNA MODELS
+
+#include "G4DNAElastic.hh"
+#include "G4DNAChampionElasticModel.hh"
+#include "G4DNAScreenedRutherfordElasticModel.hh"
+
+#include "G4DNAExcitation.hh"
+#include "G4DNAMillerGreenExcitationModel.hh"
+#include "G4DNABornExcitationModel.hh"
+
+#include "G4DNAIonisation.hh"
+#include "G4DNABornIonisationModel.hh"
+#include "G4DNARuddIonisationModel.hh"
+
+#include "G4DNAChargeDecrease.hh"
+#include "G4DNADingfelderChargeDecreaseModel.hh"
+
+#include "G4DNAChargeIncrease.hh"
+#include "G4DNADingfelderChargeIncreaseModel.hh"
+
+#include "G4DNAAttachment.hh"
+#include "G4DNAMeltonAttachmentModel.hh"
+
+#include "G4DNAVibExcitation.hh"
+#include "G4DNASancheExcitationModel.hh"
+
+
+#include "G4LossTableManager.hh"
+#include "G4UrbanMscModel.hh"
+#include "G4EmConfigurator.hh"
 void PhysicsList::ConstructParticle()
 {
 	// Electron & Positron
@@ -94,9 +124,52 @@ void PhysicsList::ConstructEM()
 			
 			//theIonisation->SetEmModel(new G4MollerBhabhaModel());
 			
-			G4LivermoreIonisationModel* eIoniModel = new G4LivermoreIonisationModel();
+			/*G4LivermoreIonisationModel* eIoniModel = new G4LivermoreIonisationModel();
 			eIoniModel->SetHighEnergyLimit(1*GeV); 
 			theIonisation->AddEmModel(0, eIoniModel, new G4UniversalFluctuation() );
+			*/
+			
+			/* G4DNAIonisation* dnaioni = new G4DNAIonisation("e-_G4DNAIonisation");
+			 dnaioni->SetEmModel(new G4DummyModel(),1); 
+			 pmanager->AddDiscreteProcess(dnaioni);*/
+			 
+			 // ------------------------------DNA-----------------------------------------
+			 
+			 G4EmConfigurator* em_config = G4LossTableManager::Instance()->EmConfigurator();
+
+			  G4VEmModel* mod;
+
+			  // *** e-
+
+			  // ---> STANDARD EM processes are inactivated below 1 MeV
+			  
+			  mod =  new G4UrbanMscModel();
+			  mod->SetActivationLowEnergyLimit(1*MeV);
+			  em_config->SetExtraEmModel("e-","msc",mod,"thinFilm");
+			  
+			  mod = new G4MollerBhabhaModel();
+			  mod->SetActivationLowEnergyLimit(1*MeV);
+			  em_config->SetExtraEmModel("e-","eIoni",mod,"thinFilm",0.0,100*TeV, new G4UniversalFluctuation());
+
+			  // ---> DNA processes activated
+
+			  mod = new G4DNAChampionElasticModel();
+			  em_config->SetExtraEmModel("e-","e-_G4DNAElastic",mod,"thinFilm",0.0,1*MeV);
+			  
+			  mod = new G4DNABornIonisationModel();
+			  em_config->SetExtraEmModel("e-","e-_G4DNAIonisation",mod,"thinFilm",11*eV,1*MeV);
+			  
+			  mod = new G4DNABornExcitationModel();
+			  em_config->SetExtraEmModel("e-","e-_G4DNAExcitation",mod,"thinFilm",9*eV,1*MeV);
+			  
+			  mod = new G4DNAMeltonAttachmentModel();
+			  em_config->SetExtraEmModel("e-","e-_G4DNAAttachment",mod,"thinFilm",4*eV,13*eV);
+			  
+			  mod = new G4DNASancheExcitationModel();
+			  em_config->SetExtraEmModel("e-","e-_G4DNAVibExcitation",mod,"thinFilm",2*eV,100*eV);
+			 			 
+			 // ------------------------------DNA-----------------------------------------
+			 
 			
 			ph->RegisterProcess(theIonisation, particle);
 			
@@ -115,7 +188,7 @@ void PhysicsList::ConstructEM()
             theIonisation->AddEmModel(0, theIoniPenelope, new G4UniversalFluctuation());
 			*/
 			
-			theIonisation->SetEmModel(new G4MollerBhabhaModel());
+			//theIonisation->SetEmModel(new G4MollerBhabhaModel());
 			
 			//theIonisation->SetEmModel(new G4LivermoreIonisationModel());
 			
@@ -174,7 +247,7 @@ void PhysicsList::SetCuts()
   SetCutValue(1*nm, "e+");//cutForElectron
   SetCutValue(1*nm, "GenericIon");//cutForGenericIon
   G4VUserPhysicsList::SetCuts();
-  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(30*eV, 10*GeV);
+  G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(10*eV, 10*GeV);
   //DumpCutValuesTable();
 
 }  

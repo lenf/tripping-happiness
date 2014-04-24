@@ -8,7 +8,7 @@ using namespace std;
 #include "TCanvas.h"
 
 void print_physics(){
-	TFile* f = TFile :: Open("./MolerBhabha.root");
+	TFile* f = TFile :: Open("./DNA.root");
 	ntuple = (TNtuple*) f->Get("Second_electron_energy");
 	float mine = 0;
 	float maxe = 100;
@@ -20,7 +20,7 @@ void print_physics(){
         content = ntuple->GetArgs();
         h1a->Fill(content[0]);
 	}
-	
+	/*
 	TFile* f1 = TFile :: Open("./Livermore.root");
 	ntuple1 = (TNtuple*) f1->Get("Second_electron_energy");
 	TH1F *h1b = new TH1F("Livermore", "Livermore", n, mine, maxe);
@@ -29,12 +29,12 @@ void print_physics(){
         content = ntuple1->GetArgs();
         h1b->Fill(content[0]);
 	}
-	
+	*/
 	//TCanvas *c1 = new TCanvas("Moler","Bhabha");
 	//TCanvas *c2 = new TCanvas("Livermore","Livermore");
 	//c1->cd();
 	h1a->Draw();
 	//c2->cd();
-	h1b->SetLineColor(kRed);
-	h1b->Draw("same");
+	/*h1b->SetLineColor(kRed);
+	h1b->Draw("same");*/
 }

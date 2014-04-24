@@ -8,7 +8,7 @@ using namespace std;
 #include "TCanvas.h"
 
 void all(){
-	TFile* f = TFile :: Open("./Allelectron.root");
+	TFile* f = TFile :: Open("./Allelectronmolar.root");
 	ntuple = (TNtuple*) f->Get("Allelectron");
 	float mine = 0;
 	float maxe = 100;

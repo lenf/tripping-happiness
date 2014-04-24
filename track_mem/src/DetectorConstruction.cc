@@ -80,11 +80,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //Print all the materials defined.
   //G4cout << G4endl << "The materials defined are : " << G4endl << G4endl;
   //G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+  G4NistManager* man = G4NistManager::Instance();
+  G4Material* H2O  = man->FindOrBuildMaterial("G4_WATER");
 
 //--------- Sizes of the principal geometrical components (solids)  ---------
   
   fTargetLength  = 5.0 * cm;                        // Full length of Target
-  TargetMater  = PMMA;								// Target material
+  TargetMater  = H2O;								// Target material
   fWorldLength= 20 * fTargetLength;					// Full length of world
   G4double targetSize  = 0.5 * fTargetLength;    	// Half length of Target
   G4double fTargetWidth  = 12.5 * um;//1.e-6 * m;        // Half width of Target

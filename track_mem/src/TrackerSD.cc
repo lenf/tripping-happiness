@@ -20,12 +20,18 @@ TrackerSD::TrackerSD(G4String name, G4double Adensity, G4double Amolar, G4double
   ntuple2 = new TNtuple("Electron","Demo ntuple","z:r:amount");
   ntuple3 = new TNtuple("ElectronEnd","Demo ntuple","z:r:amount");
   ntuple4 = new TNtuple("Info","Demo ntuple","amount:den:molar:width");
-  f1 = new TFile("MolerBhabha.root","RECREATE");
+  /*ntuple1->Write(); 
+  ntuple2->Write(); 
+  ntuple3->Write(); 
+  ntuple4->Write(); */
+  f1 = new TFile("./DNA.root","RECREATE");
   f1->cd();
-  ntuple5 = new TNtuple("Second_electron_energy","Demo ntuple","energy");  
-  f2 = new TFile("Allelectronliver.root","RECREATE");
+  ntuple5 = new TNtuple("Second_electron_energy","Demo ntuple","energy");
+  // ntuple5->Write();  
+  f2 = new TFile("Allelectrondna.root","RECREATE");
   f2->cd();
-  ntuple6 = new TNtuple("Allelectron","Demo ntuple","energy");  
+  ntuple6 = new TNtuple("Allelectron","Demo ntuple","energy"); 
+  //ntuple6->Write();  
   entireZ = 0;
   entireX = 0;
   entireY = 0;
@@ -50,14 +56,17 @@ TrackerSD::TrackerSD(G4String name, G4double Adensity, G4double Amolar, G4double
 
 TrackerSD::~TrackerSD()
 { 
+	f->cd();
 	ntuple1 -> Write();
 	ntuple2 -> Write();
 	ntuple3 -> Write();
 	ntuple4 -> Fill (launchAmount, density, molar, width/um);
 	ntuple4 -> Write();
     f -> Close();
+    f1->cd();
     ntuple5 -> Write();
     f1 ->Close(); 
+    f2->cd();
     ntuple6 -> Write();
     f2 ->Close(); 
     cout << "first_e = " << first << " second_e = " << second << "   "<< (second * 1.0)/(first + second) << endl;
@@ -104,26 +113,25 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 		}
   }
   else {
-	  	if ((aStep->GetTrack()) -> GetDefinition() ->GetParticleName()!= "e-")
-			cout << "Detected particle: " << aStep->GetTrack() -> GetDefinition()->GetParticleName()  << endl;
-			
-					
+	  					
 	  	if (currentTrackId != trackId){
 			if ((wasElectron) && (written)){
 				ntuple3 -> Fill (endZ / um, endR);
 				wasElectron = false;
+				ntuple6 -> Fill(kinenergy);
 				if (wasfirst)
 					first ++;
 				else{
 					second++;
-					ntuple5 -> Fill(kenergy);
+					//cout << kinenergy << endl;
+					ntuple5 -> Fill(kinenergy);
 					
 				}
 			}
 			
+			
 			if (aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-"){
 				kinenergy = aStep->GetTrack()->GetKineticEnergy() / eV;
-				ntuple6 -> Fill(kinenergy);
 				if ((aStep->GetTrack())->GetParentID() == 1)
 					wasfirst = true;
 				else
@@ -150,8 +158,13 @@ G4bool TrackerSD::ProcessHits(G4Step* aStep,G4TouchableHistory*)
 			if ((aStep->GetTrack()->GetDefinition()->GetParticleName()== "e-") && (written)){
 				endZ = position.z() - start_pos.z();
 				endR = getCorrectRadius(position);
-				kenergy = kinenergy;
+				//kenergy = kinenergy;
 			}
+		}
+		
+		if ((aStep->GetTrack()) -> GetDefinition() ->GetParticleName()!= "e-"){
+			//cout << "Detected particle: " << aStep->GetTrack() -> GetDefinition()->GetParticleName()  << endl;
+			wasElectron = false;
 		}
   }
   return true;
